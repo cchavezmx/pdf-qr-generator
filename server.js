@@ -8,7 +8,8 @@ dotenv.config()
 
 const server = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  introspection: true
 })
 
 const { url } = await startStandaloneServer(server, {
