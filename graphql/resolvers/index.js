@@ -59,7 +59,6 @@ export const resolvers = {
         const pdf = await pdfRegenerator(uuid)
         return { pdfBase64: pdf, uuid }
       } catch (error) {
-        console.log('🚀 ~ file: index.js:50 ~ pdfGenerator: ~ error:', error)
         throw new GraphQLError('Error in pdfGenerator.js')
       }
     }

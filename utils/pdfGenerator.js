@@ -4,7 +4,7 @@ import qr from 'qrcode'
 import redisClient from '../utils/redis.js'
 // import puppeteer from 'puppeteer'
 
-const html2pdf = async (containers, country = '') => {
+const html2pdf = async (containers, country, station) => {
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
   const page = await browser.newPage()
   const qrMaker = async (counter) => {
@@ -19,7 +19,7 @@ const html2pdf = async (containers, country = '') => {
     return `
     <div style="page-break-after:always;">
       <h1>${tag}</h1>
-      <p>${country}</p>      
+      <p>${station}</p>      
         ${qrCode}      
     </div>
     `
@@ -96,15 +96,15 @@ const html2pdf = async (containers, country = '') => {
   }
 }
 
-const pdfGenerator = async (containers, country) => {
-  const { pdf } = await html2pdf(containers, country)
+const pdfGenerator = async (containers, country, station) => {
+  const { pdf } = await html2pdf(containers, country, station)
   return pdf
 }
 
 const pdfRegenerator = async (uuid) => {
   const data = await redisClient.get(uuid)
-  const { containers, country } = JSON.parse(data)
-  const { pdf } = await html2pdf(containers, country)
+  const { containers, country, station } = JSON.parse(data)
+  const { pdf } = await html2pdf(containers, country, station)
   return pdf
 }
 
