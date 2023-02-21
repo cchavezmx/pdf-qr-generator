@@ -14,14 +14,15 @@ const html2pdf = async (containers, country, station) => {
     return qrCode
   }
 
-  const htmlPromise = containers.map(async ({ id, tag }) => {
+  const htmlPromise = containers.map(async ({ id, tag }, index) => {
     const qrCode = await qrMaker(id)
     return `
-    <div style="page-break-after:always;">
+    <div style="break-after: avoid-page;">
       <h1>${tag}</h1>
       <p>${station}</p>      
         ${qrCode}      
     </div>
+    ${index % 2 === 0 ? '<hr />' : null}
     `
   })
 
@@ -41,20 +42,19 @@ const html2pdf = async (containers, country, station) => {
             position: relative;
           }
                     
-          div {
+          div {            
             display: grid;
             place-items: center;
-            height: 100%; 
+            padding: 10px;
           }
 
-          img, picture, svg{
-            padding: 10px;
-            height: 10cm;
-            width: 10cm;
+          img, picture, svg{            
+            height: 13cm;
+            width: 13cm;
           }
 
           h1 {
-            font-size: 7rem;
+            font-size: 6rem;
             margin: 0;
             padding: 0;
           }
@@ -63,6 +63,12 @@ const html2pdf = async (containers, country, station) => {
             font-size: 1.5rem;
             margin: 0;
             padding: 0;
+          }
+
+          hr {
+            width: 100vh;
+            height: 2px;
+            background-color: black;
           }
 
         </style>
@@ -75,13 +81,13 @@ const html2pdf = async (containers, country, station) => {
     await page.setContent(hmtlGET)
 
     const pdf = await page.pdf({
-      height: '15cm',
-      width: '15cm',
+      height: '297mm',
+      width: '210mm',
       printBackground: true,
 
       margin: {
         left: 0,
-        top: 0,
+        top: 2,
         right: 0,
         bottom: 0
       }
