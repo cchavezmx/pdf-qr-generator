@@ -47,7 +47,7 @@ export const resolvers = {
           .catch((error) => console.log('🚀 ~ file: index.js:48 ~ pdfGenerator: ~ error:', error))
         const uuid = uuidv4()
         redisClient.set(uuid, JSON.stringify({ containers: containers.containers, country, station }))
-        const pdf = await pdfGenerator(containers.containers, country)
+        const pdf = await pdfGenerator(containers.containers, country, station)
         return { pdfBase64: pdf, uuid }
       } catch (error) {
         console.log('🚀 ~ file: index.js:50 ~ pdfGenerator: ~ error:', error)
