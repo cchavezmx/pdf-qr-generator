@@ -1,7 +1,9 @@
 import * as dotenv from 'dotenv'
-import pdfGenerator from '../../utils/pdfGenerator.js'
+import { pdfGenerator, pdfRegenerator } from '../../utils/pdfGenerator.js'
 import fetch from 'node-fetch'
 import { GraphQLError } from 'graphql'
+import redisClient from '../../utils/redis.js'
+import { v4 as uuidv4 } from 'uuid'
 
 dotenv.config()
 const API_99 = process.env.API_99
@@ -42,10 +44,22 @@ export const resolvers = {
         })
           .then((res) => res.json())
           .then((res) => res.data.createContainers)
-
+          .catch((error) => console.log('🚀 ~ file: index.js:48 ~ pdfGenerator: ~ error:', error))
+        const uuid = uuidv4()
+        redisClient.set(uuid, JSON.stringify({ containers: containers.containers, country, station }))
         const pdf = await pdfGenerator(containers.containers, country)
-        return pdf
+        return { pdfBase64: pdf, uuid }
       } catch (error) {
+        console.log('🚀 ~ file: index.js:50 ~ pdfGenerator: ~ error:', error)
+        throw new GraphQLError('Error in pdfGenerator.js')
+      }
+    },
+    pdfRegenerator: async (_, { uuid }) => {
+      try {
+        const pdf = await pdfRegenerator(uuid)
+        return { pdfBase64: pdf, uuid }
+      } catch (error) {
+        console.log('🚀 ~ file: index.js:50 ~ pdfGenerator: ~ error:', error)
         throw new GraphQLError('Error in pdfGenerator.js')
       }
     }

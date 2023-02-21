@@ -7,9 +7,14 @@ export const typeDefs = `#graphql
     country: String
   }
 
+  type PDF {
+    pdfBase64: String
+    uuid: String
+  }
   
   type Mutation {
-    pdfGenerator(createContainers: inputCreateContainers): String
+    pdfGenerator(createContainers: inputCreateContainers): PDF,
+    pdfRegenerator(uuid: String): PDF
   }
 
   type Query {

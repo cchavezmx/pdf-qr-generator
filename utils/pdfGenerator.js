@@ -1,6 +1,7 @@
 import { chromium } from 'playwright-chromium'
 import { GraphQLError } from 'graphql'
 import qr from 'qrcode'
+import redisClient from '../utils/redis.js'
 // import puppeteer from 'puppeteer'
 
 const html2pdf = async (containers, country = '') => {
@@ -77,6 +78,7 @@ const html2pdf = async (containers, country = '') => {
       height: '15cm',
       width: '15cm',
       printBackground: true,
+
       margin: {
         left: 0,
         top: 0,
@@ -99,4 +101,14 @@ const pdfGenerator = async (containers, country) => {
   return pdf
 }
 
-export default pdfGenerator
+const pdfRegenerator = async (uuid) => {
+  const data = await redisClient.get(uuid)
+  const { containers, country } = JSON.parse(data)
+  const { pdf } = await html2pdf(containers, country)
+  return pdf
+}
+
+export {
+  pdfGenerator,
+  pdfRegenerator
+}
