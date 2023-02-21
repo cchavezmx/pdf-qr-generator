@@ -1,10 +1,32 @@
 import { chromium } from 'playwright-chromium'
 import { GraphQLError } from 'graphql'
+import qr from 'qrcode'
 // import puppeteer from 'puppeteer'
 
 const html2pdf = async (payload) => {
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
   const page = await browser.newPage()
+  const qrMaker = async (counter) => {
+    const qrCode = qr.toString(counter, {
+      type: 'svg'
+    })
+    return qrCode
+  }
+
+  const containersRando = ['YAW-526', 'YAW-527', 'YAW-528', 'YAW-529']
+
+  const htmlPromise = containersRando.map(async (container, index) => {
+    const qrCode = await qrMaker(container)
+    return `
+    <div style="page-break-after:always;">
+      <h1>CONTAINER</h1>
+      <p>Page ${index + 1}</p>      
+        ${qrCode}      
+    </div>
+    `
+  })
+
+  const htmlString = await Promise.all(htmlPromise)
 
   try {
     const hmtlGET = `
@@ -21,24 +43,28 @@ const html2pdf = async (payload) => {
           }     
           
           div {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-direction: column;
+            display: grid;
+            place-items: center;
+            height: 100%; 
+          }
+
+          img, picture, svg{
+            padding: 10px;
+            height: 10cm;
+            width: 10cm;
           }
         </style>
       </head>
-      <body>
-        <div>
-          <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google Logo" width="200" height="200">
-        </div>      
+      <body>        
+      ${htmlString.join('\n')}
       </body>
     </html>
     `
     await page.setContent(hmtlGET)
 
     const pdf = await page.pdf({
-      format: 'Letter',
+      height: '15cm',
+      width: '15cm',
       printBackground: true,
       margin: {
         left: 0,
@@ -59,7 +85,6 @@ const html2pdf = async (payload) => {
 }
 
 const pdfGenerator = async (numContainers, station, country) => {
-  console.log(numContainers, station, country)
   const { pdf } = await html2pdf()
   return pdf
 }

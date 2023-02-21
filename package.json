@@ -15,7 +15,8 @@
   "dependencies": {
     "@apollo/server": "^4.4.0",
     "graphql": "^16.6.0",
-    "playwright-chromium": "^1.30.0"
+    "playwright-chromium": "^1.30.0",
+    "qrcode": "^1.5.1"
   },
   "devDependencies": {
     "dotenv": "^16.0.3",
