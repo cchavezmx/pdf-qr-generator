@@ -3,7 +3,7 @@ import { GraphQLError } from 'graphql'
 import qr from 'qrcode'
 // import puppeteer from 'puppeteer'
 
-const html2pdf = async (payload) => {
+const html2pdf = async (containers, country = '') => {
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
   const page = await browser.newPage()
   const qrMaker = async (counter) => {
@@ -13,14 +13,12 @@ const html2pdf = async (payload) => {
     return qrCode
   }
 
-  const containersRando = ['YAW-526', 'YAW-527', 'YAW-528', 'YAW-529']
-
-  const htmlPromise = containersRando.map(async (container, index) => {
-    const qrCode = await qrMaker(container)
+  const htmlPromise = containers.map(async ({ id, tag }) => {
+    const qrCode = await qrMaker(id)
     return `
     <div style="page-break-after:always;">
-      <h1>CONTAINER</h1>
-      <p>Page ${index + 1}</p>      
+      <h1>${tag}</h1>
+      <p>${country}</p>      
         ${qrCode}      
     </div>
     `
@@ -40,8 +38,8 @@ const html2pdf = async (payload) => {
             display: grid;  
             justify-content: center;        
             position: relative;
-          }     
-          
+          }
+                    
           div {
             display: grid;
             place-items: center;
@@ -53,6 +51,19 @@ const html2pdf = async (payload) => {
             height: 10cm;
             width: 10cm;
           }
+
+          h1 {
+            font-size: 7rem;
+            margin: 0;
+            padding: 0;
+          }
+
+          p {
+            font-size: 1.5rem;
+            margin: 0;
+            padding: 0;
+          }
+
         </style>
       </head>
       <body>        
@@ -79,13 +90,12 @@ const html2pdf = async (payload) => {
     const base64 = pdf.toString('base64')
     return { pdf: base64 }
   } catch (error) {
-    console.log(error)
     throw new GraphQLError('Error in pdfGenerator.js')
   }
 }
 
-const pdfGenerator = async (numContainers, station, country) => {
-  const { pdf } = await html2pdf()
+const pdfGenerator = async (containers, country) => {
+  const { pdf } = await html2pdf(containers, country)
   return pdf
 }
 
